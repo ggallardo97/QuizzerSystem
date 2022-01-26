@@ -13,7 +13,7 @@ class StudentExamModel extends Model{
     protected $returnType     = 'array';
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['idstudent','idexam','dateexam','score'];
+    protected $allowedFields = ['idstudent','idexam','dateexam','timeexam','score'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

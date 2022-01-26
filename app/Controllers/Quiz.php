@@ -457,10 +457,13 @@ class Quiz extends BaseController{
 
         $studentexamModel = new StudentExamModel();
 
+        date_default_timezone_set('America/Argentina/Salta');
+
         $result = [
             'idstudent' => $iduser,
             'idexam'    => $idexam,
             'dateexam'  => date("Y-m-d"),
+            'timeexam'  => date("H:i:s",time()),
             'score'     => $score
         ];
 
@@ -631,7 +634,7 @@ class Quiz extends BaseController{
 
         $studentexamModel   = new StudentExamModel();
 
-        $scores = $studentexamModel->select('nameus,score,dateexam,title')
+        $scores = $studentexamModel->select('nameus,score,dateexam,timeexam,title')
                                    ->join('users', 'users.iduser = student_exam.idstudent')
                                    ->join('exams', 'exams.idexam = student_exam.idexam')
                                    ->find();

@@ -9,6 +9,7 @@
                             <th>Name</th>
                             <th>Score</th>
                             <th>Date</th>
+                            <th>Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -25,6 +26,9 @@
                             </td>
                             <td>
                                 <?php echo date('d-m-Y',strtotime($row['dateexam'])); ?>
+                            </td>
+                            <td>
+                                <?php echo $row['timeexam']; ?>
                             </td>
                         </tr>
                     <?php } ?>
