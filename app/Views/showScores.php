@@ -24,7 +24,7 @@
                                 <?php echo $row['score']; ?>
                             </td>
                             <td>
-                                <?php echo $row['dateexam']; ?>
+                                <?php echo date('d-m-Y',strtotime($row['dateexam'])); ?>
                             </td>
                         </tr>
                     <?php } ?>
@@ -34,4 +34,6 @@
         </div>
     </div>
 </div>
-<a href="<?php echo base_url().'/public/quiz/teacherOptions'; ?>" class="btn btn-primary" style="margin-left: 105px;">Menu</a>
+<?php 
+    include('modalAddExam.php');
+?>

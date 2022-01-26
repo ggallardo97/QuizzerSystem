@@ -30,4 +30,3 @@
         </div>
     </div>
 </div>
-<a href="<?php echo base_url().'/public/quiz/logout'; ?>" style="margin-left: 110px;" class="btn btn-outline-primary">Logout</a>

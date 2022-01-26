@@ -20,42 +20,70 @@ class Quiz extends BaseController{
 
         if(isset($_SESSION['user'])){
 
-            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/teacherOptions');
+            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/showExams');
             else return redirect()->to('public/quiz/studentExams');
 
         }else $this->loadViews('login');
         
 	}
 
-    public function createUserSession($username, $userpassword){
+    public function createUser($nameus,$username,$email,$userpassword){
+
+        $userModel      = new UserModel();
+        $hashPassword   = password_hash($userpassword,PASSWORD_DEFAULT);
+
+        $dataUser = [
+            'nameus'        => $nameus,
+            'username'      => $username,
+            'userpassword'  => $hashPassword,
+            'email'         => $email,
+            'category'      => 'student'
+        ];
+
+        $userModel->insert($dataUser);
+
+    }
+
+    public function getUser($username){
 
         $userModel  = new UserModel();
-        $user       = $userModel->where('username',$username)->findAll();
+        $user       = $userModel->where('username',$username)->find();
+
+        return $user;
+    }
+
+    public function validatePassword($username, $userpassword){
+
+        $user = $this->getUser($username);
 
         if($user){
 
             $passw = preg_replace('([^A-Za-z0-9])','',$userpassword);
 
-            if(password_verify($passw,$user[0]['userpassword'])){
+            if(password_verify($passw,$user[0]['userpassword'])) return true;
+            else return false;
 
-                $_SESSION['user']['username']   = $user[0]['nameus'];
-                $_SESSION['user']['iduser']     = $user[0]['iduser'];
-                $_SESSION['user']['category']   = $user[0]['category'];
+        }else return false;
 
-                $data['user'] = $user[0];
+    }
 
-                if($user[0]['category'] == 'teacher') return redirect()->to('public/quiz/teacherOptions');
-                else return redirect()->to('public/quiz/studentExams');
+    public function createUserSession($username, $userpassword){
 
-            }else{
+        if($this->validatePassword($username, $userpassword)){
+
+            $user = $this->getUser($username);
+
+            $_SESSION['user']['username']   = $user[0]['nameus'];
+            $_SESSION['user']['iduser']     = $user[0]['iduser'];
+            $_SESSION['user']['category']   = $user[0]['category'];
+
+            if($user[0]['category'] == 'teacher') return redirect()->to('public/quiz/showExams');
+            else return redirect()->to('public/quiz/studentExams');
+
+        }else{
                 echo "Something went wrong!";
                 return redirect()->to('public/quiz/loginUser');
             }
-
-        }else{
-            echo 'Something went wrong!';
-            return redirect()->to('public/quiz/loginUser');
-        }
 
     }
 
@@ -63,7 +91,7 @@ class Quiz extends BaseController{
 
         if(isset($_SESSION['user'])){
 
-            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/teacherOptions');
+            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/showExams');
             else return redirect()->to('public/quiz/studentExams');
 
         }else{
@@ -109,15 +137,45 @@ class Quiz extends BaseController{
         return redirect()->to(base_url().'/public/quiz/index');
     }
 
-    public function teacherOptions(){
+    public function registerUser(){
 
-        if(isset($_SESSION['user'])){
+        helper(['url','form']);
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'nameus'        => 'required',
+            'username'      => 'required',
+            'userpassword'  => 'required',
+            'email'         => 'required'
+        ],[
+            'nameus' =>[
+                'required' => 'Name is required!'
+            ],
+            'username' =>[
+                'required' => 'User is required!'
+            ],
+            'userpassword' =>[
+                'required' => 'Password is required!'
+            ],
+            'email' =>[
+                'required' => 'Email is required!'
+            ]
+        ]);
 
-            if($_SESSION['user']['category'] == 'teacher') $this->loadViews('teacherOptions');
-            else return redirect()->to('public/quiz/studentExams');
+        if($_POST){
 
-        }else return redirect()->to('public/quiz/loginUser');
+            if($validation->withRequest($this->request)->run()){
 
+                $this->createUser($_POST['nameus'],$_POST['username'],$_POST['email'],$_POST['userpassword']);
+                return $this->createUserSession($_POST['username'],$_POST['userpassword']);
+                
+            }else{
+                $errors         = $validation->getErrors();
+                $data['error']  = $errors;
+                $this->loadViews('register',$data);
+            }
+        }else{
+            $this->loadViews('register');
+        }
     }
 
     public function getExams(){
@@ -233,64 +291,6 @@ class Quiz extends BaseController{
 
     }
 
-    public function createUser($nameus,$username,$email,$userpassword){
-
-        $userModel      = new UserModel();
-        $hashPassword   = password_hash($userpassword,PASSWORD_DEFAULT);
-
-        $dataUser = [
-            'nameus'        => $nameus,
-            'username'      => $username,
-            'userpassword'  => $hashPassword,
-            'email'         => $email,
-            'category'      => 'student'
-        ];
-
-        $userModel->insert($dataUser);
-
-    }
-
-    public function registerUser(){
-
-        helper(['url','form']);
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'nameus'        => 'required',
-            'username'      => 'required',
-            'userpassword'  => 'required',
-            'email'         => 'required'
-        ],[
-            'nameus' =>[
-                'required' => 'Name is required!'
-            ],
-            'username' =>[
-                'required' => 'User is required!'
-            ],
-            'userpassword' =>[
-                'required' => 'Password is required!'
-            ],
-            'email' =>[
-                'required' => 'Email is required!'
-            ]
-        ]);
-
-        if($_POST){
-
-            if($validation->withRequest($this->request)->run()){
-
-                $this->createUser($_POST['nameus'],$_POST['username'],$_POST['email'],$_POST['userpassword']);
-                return $this->createUserSession($_POST['username'],$_POST['userpassword']);
-                
-            }else{
-                $errors         = $validation->getErrors();
-                $data['error']  = $errors;
-                $this->loadViews('register',$data);
-            }
-        }else{
-            $this->loadViews('register');
-        }
-    }
-
     public function studentExams(){
 
         $examModel      = new ExamModel();
@@ -309,7 +309,7 @@ class Quiz extends BaseController{
 
         $arrayData        = array('idstudent' => $_SESSION['user']['iduser'],
                                   'idexam'    => $idexam);
-        $finishedExam     = $studentexamModel->where($arrayData)->find();
+        $finishedExam     = $studentexamModel->where($arrayData)->first();
 
         return $finishedExam;
     }
@@ -320,7 +320,7 @@ class Quiz extends BaseController{
 
         $title          = $questionModel->join('exams','exams.idexam = questions.idexam')
                                         ->where('questions.idexam',$idexam)
-                                        ->find();
+                                        ->first();
 
         return $title;
 
@@ -337,23 +337,45 @@ class Quiz extends BaseController{
 
     }
 
+    public function getChoices($idquest){
+
+        $choicesModel   = new ChoiceModel();
+        $choices        = $choicesModel->where('idquest',$idquest)
+                                       ->orderBy('idchoice')
+                                       ->findAll();
+
+        return $choices;
+    }
+
+    public function getExamQuestion($idexam, $idquest){
+
+        $questionModel  = new QuestionModel();
+        $arrayData      = array('questionnumber' => $idquest,
+                                'idexam'         => $idexam);
+
+        $questions      = $questionModel->where($arrayData)
+                                        ->first();
+
+        return $questions;
+    }
+
     public function examStart(){
 
         if(isset($_SESSION['user'])){
 
-            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/teacherOptions');
+            if($_SESSION['user']['category'] == 'teacher') return redirect()->to('public/quiz/showExams');
             else{
 
                 if($_GET['idexam']){
 
                     $idexam             = $_GET['idexam'];
                     $title              = $this->getExamTitle($idexam);
-                    $data['title']      = $title[0]['title'];
+                    $data['title']      = $title['title'];
                     $finishedExam       = $this->isAFinishedExam($idexam);
 
                     if($finishedExam){ 
 
-                        $data['score'] = $finishedExam[0]['score'];
+                        $data['score'] = $finishedExam['score'];
                         
                         return $this->loadViews('examFinished',$data);
 
@@ -370,27 +392,6 @@ class Quiz extends BaseController{
         }else return redirect()->to('public/quiz/loginUser');
     }
 
-    public function getChoices($idquest){
-
-        $choicesModel   = new ChoiceModel();
-        $choices        = $choicesModel->where('idquest',$idquest)
-                                       ->find();
-
-        return $choices;
-    }
-
-    public function getExamQuestion($idexam, $idquest){
-
-        $questionModel  = new QuestionModel();
-        $arrayData      = array('questionnumber' => $idquest,
-                                'idexam'         => $idexam);
-
-        $questions      = $questionModel->where($arrayData)
-                                        ->find();
-
-        return $questions;
-    }
-
     public function question(){
 
         if($_GET['idq'] && $_GET['idexam']){
@@ -398,7 +399,8 @@ class Quiz extends BaseController{
                 $idexam             = $_GET['idexam'];
                 $idquest            = $_GET['idq'];
                 $data['questions']  = $this->getExamQuestion($idexam, $idquest);
-                $data['choices']    = $this->getChoices($idquest);
+                $idq                = $data['questions']['idquestion'];
+                $data['choices']    = $this->getChoices($idq);
                 $data['totalq']     = $this->getTotalQuestions($idexam);
                 $data['idq']        = $idquest;
                 $data['idexam']     = $idexam;
@@ -504,6 +506,16 @@ class Quiz extends BaseController{
 
     }
 
+    public function getQuestionByContent($content){
+
+        $questionModel  = new QuestionModel();
+        $res            = $questionModel->select('idquestion')
+                                        ->where('question',$content)
+                                        ->find();
+
+        return $res;
+    }
+
     public function addQuestion(){
 
         if(isset($_SESSION['user'])){
@@ -532,13 +544,9 @@ class Quiz extends BaseController{
 
                             if($validation->withRequest($this->request)->run()){
 
-                                
-                                $questionModel  = new QuestionModel();
                                 $this->createQuestion($idexam,$_POST['question_text']);
 
-                                $res = $questionModel->select('idquestion')
-                                                     ->where('question',$_POST['question_text'])
-                                                     ->find();
+                                $res = $this->getQuestionByContent($_POST['question_text']);
 
                                 if($res) $data['right'] = 1;
                                 else $data['wrong'] = 1;
@@ -572,13 +580,13 @@ class Quiz extends BaseController{
 
     }
 
-    public function findExam($title){
+    public function getExam($title){
 
         $examModel  = new ExamModel();
 
         $res        = $examModel->select('idexam')
                                 ->where('title',$title)
-                                ->find();
+                                ->first();
         return $res;
 
     }
@@ -589,38 +597,30 @@ class Quiz extends BaseController{
 
             if($_SESSION['user']['category'] == 'teacher'){
 
-                $data['right'] = 0;
-                $data['wrong'] = 0;
-
                 if(isset($_POST)){
 
                     helper(['url','form']);
 
-                        $validation = \Config\Services::validation();
-                        $validation->setRules([
-                            'title' => 'required',
-                            ],[
-                                'title' =>[
-                                    'required'  => 'Title is required!'
-                                ]
-                            ]);
+                    $validation = \Config\Services::validation();
+                    $validation->setRules([
+                        'title' => 'required',
+                    ],[
+                        'title' =>[
+                            'required'  => 'Title is required!'
+                        ]
+                    ]);
 
-                        if($validation->withRequest($this->request)->run()){
+                    if($validation->withRequest($this->request)->run()){
 
-                            $this->createExam($_POST['title']);
-                            
-                            $res = $this->findExam($_POST['title']);
+                        $this->createExam($_POST['title']);
 
-                            if($res) $data['right'] = 1;
-                            else $data['wrong'] = 1;
+                        $status = "EXAM ADDED";
 
-                        }else{
-                            $errors         = $validation->getErrors();
-                            $data['error']  = $errors;
-                        }
-                    $this->loadViews('addExam',$data);
+                    }else $status = "ERROR";
+                    
+                }else $status = "ERROR";
 
-                }else $this->loadViews('addExam',$data);
+                echo ($status);die;
 
             }else return redirect()->to('public/quiz/studentExams');
 
@@ -657,6 +657,59 @@ class Quiz extends BaseController{
 
         }else return redirect()->to('public/quiz/loginUser');
 
+    }
+
+    public function editChoice(){
+
+        if(isset($_SESSION['user'])){
+
+            if($_SESSION['user']['category'] == 'teacher'){
+
+                if(isset($_POST)){
+
+                    $choicesModel = new ChoiceModel();
+                    $choicesModel->set('choice',$_POST['content'])
+                                 ->where('idchoice',$_POST['idchoice'])
+                                 ->update();
+
+                    $status = "CHOICE MODIFIED";
+
+                }else $status = "ERROR";
+
+                echo ($status);
+                die;
+
+            }else return redirect()->to('public/quiz/studentExams');
+
+        }else return redirect()->to('public/quiz/loginUser');
+
+    }
+
+    public function showChoices(){
+
+        if(isset($_SESSION['user'])){
+
+            if($_SESSION['user']['category'] == 'teacher'){
+
+                if(isset($_POST)){
+
+                    $choices = $this->getChoices($_POST['idquestion']);
+
+                    if($choices){
+
+                        foreach($choices as $key => $row){
+
+                            echo "<label>Choice [".($key+1)."]</label>";
+                            echo "<button data-idchoice='".$row['idchoice']."' style='margin-left: 363px;' class='btn btn-primary btn-sm fa fa-edit editChoicesButton'></button>";
+                            echo "<input type='text' class='form-control' data-idchoice='".$row['idchoice']."' id='choiceContent".$row['idchoice']."' value='".$row['choice']."' required/>";
+                            
+                        }
+
+                    }
+                }
+            }else return redirect()->to('public/quiz/studentExams');
+
+        }else return redirect()->to('public/quiz/loginUser');
     }
 
     public function loadViews($view = null, $data = null){

@@ -1,7 +1,7 @@
 <div class="alert alert-dark">
   Question <?php echo $idq;?> of <?php echo $totalq; ?>
 </div>
-<p class="font-weight-bolder"><?php echo $questions[0]['question']; ?></p>
+<p class="font-weight-bolder"><?php echo $questions['question']; ?></p>
 
 <?php foreach($choices as $c){ ?>
   <form method="POST" action="<?php echo base_url().'/public/quiz/process?idexam='.$idexam?>">

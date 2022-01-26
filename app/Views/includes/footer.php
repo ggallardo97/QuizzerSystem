@@ -16,6 +16,8 @@
     <script type="text/javascript" src="../../public/plugins/Datatables/datatables/datatables.min.js"></script>    
     <script type="text/javascript" src="../../public/plugins/Datatables/main.js"></script>  
     <script type="text/javascript" src="../../public/js/choices.js"></script>
+    <script type="text/javascript" src="../../public/js/addExam.js"></script>
+    <script type="text/javascript" src="../../public/js/showChoices.js"></script>
     <script type="text/javascript" src="../../public/js/deleteQuestion.js"></script>
     <script type="text/javascript" src="../../public/js/editQuestion.js"></script>
   </body>

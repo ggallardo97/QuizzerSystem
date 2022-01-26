@@ -31,4 +31,6 @@
         </div>
     </div>
 </div>
-<a href="<?php echo base_url().'/public/quiz/teacherOptions'; ?>" class="btn btn-primary" style="margin-left: 105px;">Menu</a>
+<?php 
+    include('modalAddExam.php');
+?>

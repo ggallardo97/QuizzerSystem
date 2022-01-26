@@ -7,4 +7,3 @@
 </ul>
 <a href="<?php echo base_url().'/public/quiz/question?idq=1&idexam='.$idexam; ?>" class="btn btn-outline-primary">Start</a>
 
-<a href="<?php echo base_url().'/public/quiz/logout'; ?>" class="btn btn-outline-primary">Logout</a>

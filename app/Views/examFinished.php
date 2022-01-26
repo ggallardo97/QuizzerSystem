@@ -7,5 +7,4 @@
   <li><strong>Your score: <?php echo $score; ?></strong></li>
 </ul>
 
-<a href="<?php echo base_url().'/public/quiz/logout'; ?>" class="btn btn-outline-primary">Logout</a>
 <a href="<?php echo base_url().'/public/quiz/studentExams'; ?>" class="btn btn-outline-primary">Menu</a>
