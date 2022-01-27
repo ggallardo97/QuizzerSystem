@@ -18,6 +18,7 @@ create table Student_Exam(
 	idstudent int not null,
 	idexam int not null,
 	dateexam date not null,
+	timeexam time not null,
 	score int not null,
 	check(score>=0),
 	deleted date,

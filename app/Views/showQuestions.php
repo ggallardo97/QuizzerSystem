@@ -32,6 +32,7 @@
         </div>
     </div>
 </div>
+
         <!-- Modal-->
         <div class="modal fade" id="modalForm" role="dialog">
             <div class="modal-dialog" width="600">
@@ -81,6 +82,7 @@
                     
                     <!-- Modal Body -->
                     <div class="modal-body">
+                        <div class="lds-facebook"><div></div><div></div><div></div></div>
                         <form role="form" action="" id="editChoicesForm" method="POST">
                             <div class="form-group" id="res"></div>
                         </form>

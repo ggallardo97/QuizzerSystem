@@ -3,6 +3,8 @@ $(document).ready(function(){
     $(document).on('click','.showChoicesButton', function(){ 
 
         let idquestion = $(this).data('id');
+        $('#res').empty();
+        $('.lds-facebook').show();
 
         $.ajax({
             url: 'showChoices',
@@ -11,6 +13,7 @@ $(document).ready(function(){
                     idquestion : idquestion
                 }
             }).done(function(msg){
+                $('.lds-facebook').hide();
                 $('#res').html(msg);
             });
 
