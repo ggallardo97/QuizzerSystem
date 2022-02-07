@@ -1,6 +1,6 @@
 # Quizzer System
 To test the app you can use these accounts (if you try to create one it won't be a teacher account but a student account)
 ## Teacher
-**User:**
+**User:** tongas97
 
-**Password:**
+**Password:** holamundo
